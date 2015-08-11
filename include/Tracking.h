@@ -39,6 +39,7 @@
 
 #include<tf/transform_broadcaster.h>
 
+#include <ros/publisher.h>
 
 namespace ORB_SLAM
 {
@@ -138,6 +139,7 @@ protected:
     //Publishers
     FramePublisher* mpFramePublisher;
     MapPublisher* mpMapPublisher;
+    ros::Publisher mpCameraPosePublisher;
 
     //Map
     Map* mpMap;

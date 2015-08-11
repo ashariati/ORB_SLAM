@@ -1,0 +1,51 @@
+%YAML:1.0
+
+# Camera Parameters. Adjust them!
+
+# Camera calibration parameters (OpenCV) 
+# Camera.fx: 616.4035870500876
+# Camera.fy: 617.1451601632979
+# Camera.cx: 373.2009448558302
+# Camera.cy: 227.8541422940691
+Camera.fx: 468.88810742197376
+Camera.fy: 468.7259336372183
+Camera.cx: 362.6833001814894
+Camera.cy: 254.0605669601346
+
+# Camera distortion paremeters (OpenCV) --
+# Camera.k1: -0.4144781226334042
+# Camera.k2: 0.2634836980527067
+# Camera.p1: 0.001041582893177477
+# Camera.p2: 0.0003454347027773166
+Camera.k1: -0.29824574196539166
+Camera.k2: 0.08953900825538323
+Camera.p1: -0.0006604453519568978
+Camera.p2: -0.0008468000252463978
+
+# Camera frames per second 
+Camera.fps: 30.0
+
+# Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
+Camera.RGB: 1
+
+#--------------------------------------------------------------------------------------------
+### Changing the parameters below could seriously degradate the performance of the system
+
+# ORB Extractor: Number of features per image
+ORBextractor.nFeatures: 1000
+
+# ORB Extractor: Scale factor between levels in the scale pyramid 	
+ORBextractor.scaleFactor: 1.2
+
+# ORB Extractor: Number of levels in the scale pyramid	
+ORBextractor.nLevels: 8
+
+# ORB Extractor: Fast threshold (lower less restrictive)			
+ORBextractor.fastTh: 20
+
+# ORB Extractor: Score to sort features. 0 -> Harris Score, 1 -> FAST Score			
+ORBextractor.nScoreType: 1
+
+
+# Constant Velocity Motion Model (0 - disabled, 1 - enabled [recommended])
+UseMotionModel: 1
