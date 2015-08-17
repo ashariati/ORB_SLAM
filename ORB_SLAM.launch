@@ -16,5 +16,8 @@
         <param name="image_transport" value="compressed" />
     </node>
 
+    <node pkg="imu_vo_fusion" type="vision_frame_to_world_frame" name="vision_frame_to_world_frame">
+    </node>
+
 
 </launch>

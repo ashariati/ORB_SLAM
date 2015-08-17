@@ -324,8 +324,9 @@ void Tracking::GrabImage(const sensor_msgs::ImageConstPtr& msg)
 
         geometry_msgs::TransformStamped camera_pose;
         camera_pose.transform = gmTcw;
-        camera_pose.header.frame_id = "/camera_id";
+        camera_pose.header.frame_id = "vision";
         camera_pose.header.stamp = ros::Time::now();
+        camera_pose.child_frame_id = "camera";
         mpCameraPosePublisher.publish(camera_pose);
 
     }
