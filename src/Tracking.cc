@@ -36,7 +36,7 @@
 #include<iostream>
 #include<fstream>
 
-#include <geometry_msgs/TransformStamped.h>
+#include <geometry_msgs/PoseStamped.h>
 #include <tf/transform_datatypes.h>
 
 using namespace std;
@@ -144,7 +144,7 @@ Tracking::Tracking(ORBVocabulary* pVoc, FramePublisher *pFramePublisher, MapPubl
     mTfBr.sendTransform(tf::StampedTransform(tfT,ros::Time::now(), "/ORB_SLAM/World", "/ORB_SLAM/Camera"));
 
     ros::NodeHandle nh;
-    mpCameraPosePublisher = nh.advertise<geometry_msgs::TransformStamped>("/ORB_SLAM/camera_pose", 100);
+    mpCameraPosePublisher = nh.advertise<geometry_msgs::PoseStamped>("/ORB_SLAM/camera_pose", 100);
 }
 
 void Tracking::SetLocalMapper(LocalMapping *pLocalMapper)
@@ -322,11 +322,14 @@ void Tracking::GrabImage(const sensor_msgs::ImageConstPtr& msg)
         geometry_msgs::Transform gmTcw;
         tf::transformTFToMsg(tfTcw, gmTcw);
 
-        geometry_msgs::TransformStamped camera_pose;
-        camera_pose.transform = gmTcw;
+        geometry_msgs::PoseStamped camera_pose;
         camera_pose.header.frame_id = "vision";
         camera_pose.header.stamp = ros::Time::now();
-        camera_pose.child_frame_id = "camera";
+        camera_pose.pose.position.x = gmTcw.translation.x;
+        camera_pose.pose.position.y = gmTcw.translation.y;
+        camera_pose.pose.position.z = gmTcw.translation.z;
+        camera_pose.pose.orientation = gmTcw.rotation;
+
         mpCameraPosePublisher.publish(camera_pose);
 
     }
