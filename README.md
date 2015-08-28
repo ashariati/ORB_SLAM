@@ -93,6 +93,8 @@ It only depends on OpenCV, but it should be included in the ROS distribution.
 
 	*Tip: Set your favorite compilation flags in line 12 and 13 of* `Thirdparty/DBoW2/CMakeLists.txt` (by default -03 -march=native)
 
+**Step 6 is no longer necessary as my version of the original ORB-SLAM package has been catkinized**
+
 #4. Usage
 
 **See section 5 to run the Example Sequence**.
