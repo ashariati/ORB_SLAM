@@ -141,10 +141,10 @@ Tracking::Tracking(ORBVocabulary* pVoc, FramePublisher *pFramePublisher, MapPubl
 
     tf::Transform tfT;
     tfT.setIdentity();
-    mTfBr.sendTransform(tf::StampedTransform(tfT,ros::Time::now(), "/ORB_SLAM/World", "/ORB_SLAM/Camera"));
+    mTfBr.sendTransform(tf::StampedTransform(tfT,ros::Time::now(), "ORB_SLAM/World", "ORB_SLAM/Camera"));
 
     ros::NodeHandle nh;
-    mpCameraPosePublisher = nh.advertise<geometry_msgs::PoseStamped>("/ORB_SLAM/camera_pose", 100);
+    mpCameraPosePublisher = nh.advertise<geometry_msgs::PoseStamped>("ORB_SLAM/camera_pose", 100);
 }
 
 void Tracking::SetLocalMapper(LocalMapping *pLocalMapper)
@@ -165,10 +165,7 @@ void Tracking::SetKeyFrameDatabase(KeyFrameDatabase *pKFDB)
 void Tracking::Run()
 {
     ros::NodeHandle nodeHandler;
-    ros::Subscriber sub = nodeHandler.subscribe("/camera/image_raw", 1, &Tracking::GrabImage, this);
-    // ros::Subscriber sub = nodeHandler.subscribe("/mono/image_raw", 1, &Tracking::GrabImage, this);
-    // ros::Subscriber sub = nodeHandler.subscribe("/duo_node/stereo/left_image", 1, &Tracking::GrabImage, this);
-
+    ros::Subscriber sub = nodeHandler.subscribe("camera/image_raw", 1, &Tracking::GrabImage, this);
     ros::spin();
 }
 
