@@ -25,6 +25,7 @@
 #include<boost/thread.hpp>
 
 #include<ORB_SLAM/PoseStampedArray.h>
+#include<tf/transform_datatypes.h>
 
 #include<opencv2/core/core.hpp>
 
@@ -172,20 +173,31 @@ int main(int argc, char **argv)
         f << setprecision(6) << pKF->mTimeStamp << setprecision(7) << " " << t.at<float>(0) << " " << t.at<float>(1) << " " << t.at<float>(2)
           << " " << q[0] << " " << q[1] << " " << q[2] << " " << q[3] << endl;
 
+        // transform to proper world frame
+        tf::Matrix3x3 R_ ( 0,  0, 1,
+                          -1,  0, 0,
+                           0, -1, 0);
+
+        tf::Matrix3x3 M(R.at<float>(0,0), R.at<float>(0,1), R.at<float>(0,2),
+                        R.at<float>(1,0), R.at<float>(1,1), R.at<float>(1,2),
+                        R.at<float>(2,0), R.at<float>(2,1), R.at<float>(2,2));
+        tf::Vector3 V(t.at<float>(0), t.at<float>(1), t.at<float>(2));
+
+        tf::Transform Twc (R_ * M, R_ * V);
+
+        geometry_msgs::Transform gmTwc;
+        tf::transformTFToMsg(Twc, gmTwc);
+
         // create message
         geometry_msgs::PoseStamped p;
         p.header.stamp = ros::Time(pKF->mTimeStamp);
-        p.pose.position.x = t.at<float>(0);
-        p.pose.position.y = t.at<float>(1);
-        p.pose.position.z = t.at<float>(2);
-        p.pose.orientation.x = q[0];
-        p.pose.orientation.y = q[1];
-        p.pose.orientation.z = q[2];
-        p.pose.orientation.w = q[3];
+        p.pose.position.x = gmTwc.translation.x;
+        p.pose.position.y = gmTwc.translation.y;
+        p.pose.position.z = gmTwc.translation.z;
+        p.pose.orientation = gmTwc.rotation;
 
         // append
         parr.poses.push_back(p);
-
 
     }
     f.close();
