@@ -24,6 +24,8 @@
 #include<ros/package.h>
 #include<boost/thread.hpp>
 
+#include<ORB_SLAM/PoseStampedArray.h>
+
 #include<opencv2/core/core.hpp>
 
 #include "Tracking.h"
@@ -138,6 +140,11 @@ int main(int argc, char **argv)
         r.sleep();
     }
 
+    // Publish keyframe poses at the end of the execution
+    ros::NodeHandle nh;
+    ros::Publisher FinalKFPosePub; 
+    FinalKFPosePub = nh.advertise<ORB_SLAM::PoseStampedArray>("ORB_SLAM/final_keyframe_poses", 10);
+
     // Save keyframe poses at the end of the execution
     ofstream f;
 
@@ -148,6 +155,9 @@ int main(int argc, char **argv)
     string strFile = ros::package::getPath("ORB_SLAM")+"/"+"KeyFrameTrajectory.txt";
     f.open(strFile.c_str());
     f << fixed;
+
+    // message
+    ORB_SLAM::PoseStampedArray parr;
 
     for(size_t i=0; i<vpKFs.size(); i++)
     {
@@ -162,8 +172,26 @@ int main(int argc, char **argv)
         f << setprecision(6) << pKF->mTimeStamp << setprecision(7) << " " << t.at<float>(0) << " " << t.at<float>(1) << " " << t.at<float>(2)
           << " " << q[0] << " " << q[1] << " " << q[2] << " " << q[3] << endl;
 
+        // create message
+        geometry_msgs::PoseStamped p;
+        p.header.stamp = ros::Time(pKF->mTimeStamp);
+        p.pose.position.x = t.at<float>(0);
+        p.pose.position.y = t.at<float>(1);
+        p.pose.position.z = t.at<float>(2);
+        p.pose.orientation.x = q[0];
+        p.pose.orientation.y = q[1];
+        p.pose.orientation.z = q[2];
+        p.pose.orientation.w = q[3];
+
+        // append
+        parr.poses.push_back(p);
+
+
     }
     f.close();
+
+    // publish
+    FinalKFPosePub.publish(parr);
 
     ros::shutdown();
 
