@@ -126,6 +126,9 @@ int main(int argc, char **argv)
     LoopCloser.SetTracker(&Tracker);
     LoopCloser.SetLocalMapper(&LocalMapper);
 
+    // get namespace
+    std::string ns = ros::this_node::getNamespace();
+
     //This "main" thread will show the current processed frame and publish the map
     float fps = fsSettings["Camera.fps"];
     if(fps==0)
@@ -141,24 +144,17 @@ int main(int argc, char **argv)
         r.sleep();
     }
 
-    // Publish keyframe poses at the end of the execution
-    ros::NodeHandle nh;
-    ros::Publisher FinalKFPosePub; 
-    FinalKFPosePub = nh.advertise<ORB_SLAM::PoseStampedArray>("ORB_SLAM/final_keyframe_poses", 10);
-
     // Save keyframe poses at the end of the execution
     ofstream f;
 
     vector<ORB_SLAM::KeyFrame*> vpKFs = World.GetAllKeyFrames();
     sort(vpKFs.begin(),vpKFs.end(),ORB_SLAM::KeyFrame::lId);
 
-    cout << endl << "Saving Keyframe Trajectory to KeyFrameTrajectory.txt" << endl;
-    string strFile = ros::package::getPath("ORB_SLAM")+"/"+"KeyFrameTrajectory.txt";
+    cout << endl << "Saving Keyframe Trajectory" << endl;
+    string strFile = ros::package::getPath("ORB_SLAM") + "/" + 
+        ns + "_trajectory.txt";
     f.open(strFile.c_str());
     f << fixed;
-
-    // message
-    ORB_SLAM::PoseStampedArray parr;
 
     for(size_t i=0; i<vpKFs.size(); i++)
     {
@@ -170,8 +166,6 @@ int main(int argc, char **argv)
         cv::Mat R = pKF->GetRotation().t();
         vector<float> q = ORB_SLAM::Converter::toQuaternion(R);
         cv::Mat t = pKF->GetCameraCenter();
-        f << setprecision(6) << pKF->mTimeStamp << setprecision(7) << " " << t.at<float>(0) << " " << t.at<float>(1) << " " << t.at<float>(2)
-          << " " << q[0] << " " << q[1] << " " << q[2] << " " << q[3] << endl;
 
         // transform to proper world frame
         tf::Matrix3x3 R_ ( 0,  0, 1,
@@ -188,22 +182,17 @@ int main(int argc, char **argv)
         geometry_msgs::Transform gmTwc;
         tf::transformTFToMsg(Twc, gmTwc);
 
-        // create message
-        geometry_msgs::PoseStamped p;
-        p.header.stamp = ros::Time(pKF->mTimeStamp);
-        p.pose.position.x = gmTwc.translation.x;
-        p.pose.position.y = gmTwc.translation.y;
-        p.pose.position.z = gmTwc.translation.z;
-        p.pose.orientation = gmTwc.rotation;
-
-        // append
-        parr.poses.push_back(p);
+        f << setprecision(6) << pKF->mTimeStamp << setprecision(7) << 
+            " " << gmTwc.translation.x << 
+            " " << gmTwc.translation.y << 
+            " " << gmTwc.translation.z << 
+            " " << gmTwc.rotation.x << 
+            " " << gmTwc.rotation.y << 
+            " " << gmTwc.rotation.z << 
+            " " << gmTwc.rotation.w << endl;
 
     }
     f.close();
-
-    // publish
-    FinalKFPosePub.publish(parr);
 
     ros::shutdown();
 
